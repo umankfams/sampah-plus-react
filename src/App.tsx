@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Nasabah from "./pages/Nasabah";
 import JenisSampah from "./pages/JenisSampah";
 import Transaksi from "./pages/Transaksi";
+import Cashout from "./pages/Cashout";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/nasabah" element={<Layout><Nasabah /></Layout>} />
           <Route path="/jenis-sampah" element={<Layout><JenisSampah /></Layout>} />
           <Route path="/transaksi" element={<Layout><Transaksi /></Layout>} />
+          <Route path="/cashout" element={<Layout><Cashout /></Layout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

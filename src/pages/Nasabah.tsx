@@ -27,6 +27,7 @@ interface Profile {
   no_induk: string;
   no_hp: string;
   nama: string;
+  saldo: number;
 }
 
 export default function Nasabah() {
@@ -135,17 +136,18 @@ export default function Nasabah() {
               <TableHead>No Induk</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>No HP</TableHead>
+              <TableHead className="text-right">Saldo</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={5} className="text-center">Loading...</TableCell>
               </TableRow>
             ) : profiles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={4} className="text-center">Belum ada data</TableCell>
+                <TableCell colSpan={5} className="text-center">Belum ada data</TableCell>
               </TableRow>
             ) : (
               profiles.map((profile) => (
@@ -153,6 +155,9 @@ export default function Nasabah() {
                   <TableCell>{profile.no_induk}</TableCell>
                   <TableCell>{profile.nama}</TableCell>
                   <TableCell>{profile.no_hp}</TableCell>
+                  <TableCell className="text-right font-semibold">
+                    Rp {profile.saldo.toLocaleString("id-ID")}
+                  </TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="ghost"

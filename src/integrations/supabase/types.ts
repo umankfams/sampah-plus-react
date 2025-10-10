@@ -14,12 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      cashout: {
+        Row: {
+          created_at: string
+          id: string
+          jumlah: number
+          keterangan: string | null
+          nasabah_id: string
+          tanggal_cashout: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jumlah: number
+          keterangan?: string | null
+          nasabah_id: string
+          tanggal_cashout?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jumlah?: number
+          keterangan?: string | null
+          nasabah_id?: string
+          tanggal_cashout?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cashout_nasabah_id_fkey"
+            columns: ["nasabah_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jenis_sampah: {
         Row: {
           created_at: string
           harga_per_kg: number
           id: string
           nama: string
+          satuan: Database["public"]["Enums"]["satuan_type"]
           updated_at: string
         }
         Insert: {
@@ -27,6 +66,7 @@ export type Database = {
           harga_per_kg: number
           id?: string
           nama: string
+          satuan?: Database["public"]["Enums"]["satuan_type"]
           updated_at?: string
         }
         Update: {
@@ -34,6 +74,7 @@ export type Database = {
           harga_per_kg?: number
           id?: string
           nama?: string
+          satuan?: Database["public"]["Enums"]["satuan_type"]
           updated_at?: string
         }
         Relationships: []
@@ -45,6 +86,7 @@ export type Database = {
           nama: string
           no_hp: string
           no_induk: string
+          saldo: number
           updated_at: string
         }
         Insert: {
@@ -53,6 +95,7 @@ export type Database = {
           nama: string
           no_hp: string
           no_induk: string
+          saldo?: number
           updated_at?: string
         }
         Update: {
@@ -61,6 +104,7 @@ export type Database = {
           nama?: string
           no_hp?: string
           no_induk?: string
+          saldo?: number
           updated_at?: string
         }
         Relationships: []
@@ -153,7 +197,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      satuan_type: "KG" | "Liter" | "Ml" | "Pcs"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -280,6 +324,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      satuan_type: ["KG", "Liter", "Ml", "Pcs"],
+    },
   },
 } as const

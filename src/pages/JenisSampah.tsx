@@ -19,6 +19,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash } from "lucide-react";
 
@@ -26,6 +33,7 @@ interface JenisSampah {
   id: string;
   nama: string;
   harga_per_kg: number;
+  satuan: "KG" | "Liter" | "Ml" | "Pcs";
 }
 
 export default function JenisSampah() {
@@ -37,6 +45,7 @@ export default function JenisSampah() {
   const [formData, setFormData] = useState({
     nama: "",
     harga_per_kg: "",
+    satuan: "KG" as "KG" | "Liter" | "Ml" | "Pcs",
   });
 
   useEffect(() => {
@@ -70,6 +79,7 @@ export default function JenisSampah() {
       const data = {
         nama: formData.nama,
         harga_per_kg: parseFloat(formData.harga_per_kg),
+        satuan: formData.satuan,
       };
 
       if (editingItem) {
@@ -88,7 +98,7 @@ export default function JenisSampah() {
 
       setDialogOpen(false);
       setEditingItem(null);
-      setFormData({ nama: "", harga_per_kg: "" });
+      setFormData({ nama: "", harga_per_kg: "", satuan: "KG" });
       loadJenisSampah();
     } catch (error: any) {
       toast({
@@ -104,6 +114,7 @@ export default function JenisSampah() {
     setFormData({
       nama: item.nama,
       harga_per_kg: item.harga_per_kg.toString(),
+      satuan: item.satuan,
     });
     setDialogOpen(true);
   };
@@ -127,7 +138,7 @@ export default function JenisSampah() {
 
   const openAddDialog = () => {
     setEditingItem(null);
-    setFormData({ nama: "", harga_per_kg: "" });
+    setFormData({ nama: "", harga_per_kg: "", satuan: "KG" });
     setDialogOpen(true);
   };
 
@@ -165,7 +176,24 @@ export default function JenisSampah() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="harga_per_kg">Harga per Kg (Rp)</Label>
+                <Label htmlFor="satuan">Satuan</Label>
+                <Select
+                  value={formData.satuan}
+                  onValueChange={(value) => setFormData({ ...formData, satuan: value as "KG" | "Liter" | "Ml" | "Pcs" })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih satuan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="KG">KG</SelectItem>
+                    <SelectItem value="Liter">Liter</SelectItem>
+                    <SelectItem value="Ml">Ml</SelectItem>
+                    <SelectItem value="Pcs">Pcs</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="harga_per_kg">Harga per Satuan (Rp)</Label>
                 <Input
                   id="harga_per_kg"
                   type="number"
@@ -191,23 +219,25 @@ export default function JenisSampah() {
           <TableHeader>
             <TableRow>
               <TableHead>Nama Jenis Sampah</TableHead>
-              <TableHead>Harga per Kg</TableHead>
+              <TableHead>Satuan</TableHead>
+              <TableHead>Harga per Satuan</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={4} className="text-center">Loading...</TableCell>
               </TableRow>
             ) : jenisSampah.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center">Belum ada data</TableCell>
+                <TableCell colSpan={4} className="text-center">Belum ada data</TableCell>
               </TableRow>
             ) : (
               jenisSampah.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.nama}</TableCell>
+                  <TableCell>{item.satuan}</TableCell>
                   <TableCell>Rp {item.harga_per_kg.toLocaleString("id-ID")}</TableCell>
                   <TableCell className="text-right">
                     <Button
