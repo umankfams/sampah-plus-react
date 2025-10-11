@@ -1,4 +1,4 @@
-import { Home, Users, Trash2, Receipt, Banknote } from "lucide-react";
+import { Home, Users, Trash2, Receipt, Banknote, User2 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import {
   Sidebar,
@@ -19,6 +19,7 @@ const menuItems = [
   { title: "Jenis Sampah", url: "/jenis-sampah", icon: Trash2 },
   { title: "Transaksi", url: "/transaksi", icon: Receipt },
   { title: "Cashout", url: "/cashout", icon: Banknote },
+  { title: "Profile", url: "/profile", icon: User2 },
 ];
 
 export function AppSidebar() {
