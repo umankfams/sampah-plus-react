@@ -33,7 +33,7 @@ interface JenisSampah {
   id: string;
   nama: string;
   harga_per_kg: number;
-  satuan: "Kg" | "Liter" | "Pcs";
+  satuan: "KG" | "Liter" | "Ml" | "Pcs";
 }
 
 export default function JenisSampah() {
@@ -45,7 +45,7 @@ export default function JenisSampah() {
   const [formData, setFormData] = useState({
     nama: "",
     harga_per_kg: "",
-    satuan: "Kg" as "KG" | "Liter" | "Pcs",
+    satuan: "KG" as "KG" | "Liter" | "Ml" | "Pcs",
   });
 
   useEffect(() => {
@@ -98,7 +98,7 @@ export default function JenisSampah() {
 
       setDialogOpen(false);
       setEditingItem(null);
-      setFormData({ nama: "", harga_per_kg: "", satuan: "Kg" });
+      setFormData({ nama: "", harga_per_kg: "", satuan: "KG" });
       loadJenisSampah();
     } catch (error: any) {
       toast({
@@ -138,7 +138,7 @@ export default function JenisSampah() {
 
   const openAddDialog = () => {
     setEditingItem(null);
-    setFormData({ nama: "", harga_per_kg: "", satuan: "Kg" });
+    setFormData({ nama: "", harga_per_kg: "", satuan: "KG" });
     setDialogOpen(true);
   };
 
@@ -179,14 +179,15 @@ export default function JenisSampah() {
                 <Label htmlFor="satuan">Satuan</Label>
                 <Select
                   value={formData.satuan}
-                  onValueChange={(value) => setFormData({ ...formData, satuan: value as "Kg" | "Liter" | "Pcs" })}
+                  onValueChange={(value) => setFormData({ ...formData, satuan: value as "KG" | "Liter" | "Ml" | "Pcs" })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih satuan" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Kg">Kg</SelectItem>
+                    <SelectItem value="KG">KG</SelectItem>
                     <SelectItem value="Liter">Liter</SelectItem>
+                    <SelectItem value="Ml">Ml</SelectItem>
                     <SelectItem value="Pcs">Pcs</SelectItem>
                   </SelectContent>
                 </Select>
