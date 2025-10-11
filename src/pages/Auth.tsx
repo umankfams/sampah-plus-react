@@ -10,13 +10,13 @@ import logo from "@/assets/logo.jpg";
 import { z } from "zod";
 
 const authSchema = z.object({
-  phone: z.string().min(10, "Phone number must be at least 10 characters"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  phone: z.string().min(10, "Nomor telepon minimal 10 karakter"),
+  password: z.string().min(6, "Password minimal 6 karakter"),
 });
 
 const signupSchema = authSchema.extend({
-  noInduk: z.string().min(1, "No Induk is required"),
-  nama: z.string().min(1, "Name is required"),
+  noInduk: z.string().min(1, "No Induk wajib diisi"),
+  nama: z.string().min(1, "Nama wajib diisi"),
 });
 
 export default function Auth() {
@@ -62,13 +62,13 @@ export default function Auth() {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Login failed",
+          title: "Login gagal",
           description: error.message,
         });
       } else {
         toast({
-          title: "Login successful",
-          description: "Welcome back!",
+          title: "Login berhasil",
+          description: "Selamat datang kembali!",
         });
         navigate("/");
       }
@@ -76,7 +76,7 @@ export default function Auth() {
       if (error instanceof z.ZodError) {
         toast({
           variant: "destructive",
-          title: "Validation error",
+          title: "Kesalahan validasi",
           description: error.errors[0].message,
         });
       }
@@ -106,7 +106,7 @@ export default function Auth() {
       if (error) {
         toast({
           variant: "destructive",
-          title: "Signup failed",
+          title: "Pendaftaran gagal",
           description: error.message,
         });
         return;
@@ -125,7 +125,7 @@ export default function Auth() {
         if (profileError) {
           toast({
             variant: "destructive",
-            title: "Profile creation failed",
+            title: "Pembuatan profil gagal",
             description: profileError.message,
           });
           return;
@@ -150,8 +150,8 @@ export default function Auth() {
         }
 
         toast({
-          title: "Signup successful",
-          description: "Welcome to Bank Sampah!",
+          title: "Pendaftaran berhasil",
+          description: "Selamat datang di SiBasTara!",
         });
         navigate("/");
       }
@@ -159,7 +159,7 @@ export default function Auth() {
       if (error instanceof z.ZodError) {
         toast({
           variant: "destructive",
-          title: "Validation error",
+          title: "Kesalahan validasi",
           description: error.errors[0].message,
         });
       }
@@ -177,17 +177,17 @@ export default function Auth() {
           </div>
           <CardTitle className="text-2xl text-primary">SiBasTara</CardTitle>
           <CardDescription>
-            {isLogin ? "Login to your account" : "Create a new account"}
+            {isLogin ? "Masuk ke akun Anda" : "Buat akun baru"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
+              <Label htmlFor="phone">Nomor Telepon</Label>
               <Input
                 id="phone"
                 type="text"
-                placeholder="Enter phone number"
+                placeholder="+6281234567890"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 required
@@ -198,7 +198,7 @@ export default function Auth() {
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter password"
+                placeholder="Masukkan password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
@@ -211,18 +211,18 @@ export default function Auth() {
                   <Input
                     id="noInduk"
                     type="text"
-                    placeholder="Enter No Induk"
+                    placeholder="Masukkan No Induk"
                     value={formData.noInduk}
                     onChange={(e) => setFormData({ ...formData, noInduk: e.target.value })}
                     required
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="nama">Name</Label>
+                  <Label htmlFor="nama">Nama</Label>
                   <Input
                     id="nama"
                     type="text"
-                    placeholder="Enter full name"
+                    placeholder="Masukkan nama lengkap"
                     value={formData.nama}
                     onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
                     required
@@ -231,7 +231,7 @@ export default function Auth() {
               </>
             )}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Processing..." : isLogin ? "Login" : "Sign Up"}
+              {loading ? "Memproses..." : isLogin ? "Masuk" : "Daftar"}
             </Button>
           </form>
           <div className="mt-4 text-center">
@@ -240,7 +240,7 @@ export default function Auth() {
               onClick={() => setIsLogin(!isLogin)}
               className="text-sm"
             >
-              {isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login"}
+              {isLogin ? "Belum punya akun? Daftar" : "Sudah punya akun? Masuk"}
             </Button>
           </div>
         </CardContent>
