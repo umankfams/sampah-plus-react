@@ -28,8 +28,8 @@ export function AppSidebar() {
         <div className="flex items-center gap-3">
           <img src={logo} alt="Bank Sampah Logo" className="h-12 w-12 rounded-full" />
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-sidebar-foreground">Bank Sampah</span>
-            <span className="text-xs text-muted-foreground">Nusantara RT 17</span>
+            <span className="text-sm font-bold text-sidebar-foreground">SiBasTara</span>
+            <span className="text-xs text-muted-foreground">Bank Sampah</span>
           </div>
         </div>
       </SidebarHeader>

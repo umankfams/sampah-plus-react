@@ -175,7 +175,7 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <img src={logo} alt="Bank Sampah Logo" className="h-24 w-24 rounded-full" />
           </div>
-          <CardTitle className="text-2xl text-primary">Bank Sampah Nusantara RT 17</CardTitle>
+          <CardTitle className="text-2xl text-primary">SiBasTara</CardTitle>
           <CardDescription>
             {isLogin ? "Login to your account" : "Create a new account"}
           </CardDescription>
