@@ -25,6 +25,7 @@ interface JenisSampah {
   id: string;
   nama: string;
   harga_per_kg: number;
+  satuan: string;
 }
 
 interface TransaksiItem {
