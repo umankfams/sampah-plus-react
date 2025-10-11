@@ -260,7 +260,7 @@ export default function Transaksi() {
                 <SelectContent className="bg-popover">
                   {jenisSampah.map((sampah) => (
                     <SelectItem key={sampah.id} value={sampah.id}>
-                      {sampah.nama} - Rp {sampah.harga_per_kg.toLocaleString("id-ID")}/kg
+                      {sampah.nama} - Rp {sampah.harga_per_kg.toLocaleString("id-ID")}/({sampah.satuan})
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -268,7 +268,7 @@ export default function Transaksi() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="jumlah">Jumlah (Kg)</Label>
+              <Label htmlFor="jumlah">Jumlah</Label>
               <Input
                 id="jumlah"
                 type="number"
