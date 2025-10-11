@@ -131,8 +131,8 @@ export default function Auth() {
           return;
         }
 
-        // Assign admin role to umank@umank.com phone number
-        if (formData.phone === "umank@umank.com") {
+        // Assign admin role to super admin phone number (+6281255691234)
+        if (formData.phone === "+6281255691234") {
           await supabase
             .from("user_roles")
             .insert({
