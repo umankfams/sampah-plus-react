@@ -90,6 +90,7 @@ export type Database = {
           no_hp: string
           no_induk: string
           saldo: number
+          status: Database["public"]["Enums"]["profile_status"]
           updated_at: string
         }
         Insert: {
@@ -99,6 +100,7 @@ export type Database = {
           no_hp: string
           no_induk: string
           saldo?: number
+          status?: Database["public"]["Enums"]["profile_status"]
           updated_at?: string
         }
         Update: {
@@ -108,6 +110,7 @@ export type Database = {
           no_hp?: string
           no_induk?: string
           saldo?: number
+          status?: Database["public"]["Enums"]["profile_status"]
           updated_at?: string
         }
         Relationships: []
@@ -229,6 +232,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       cashout_status: "pending" | "approved" | "rejected"
+      profile_status: "Aktif" | "Non-aktif"
       satuan_type: "KG" | "Liter" | "Ml" | "Pcs"
     }
     CompositeTypes: {
@@ -359,6 +363,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       cashout_status: ["pending", "approved", "rejected"],
+      profile_status: ["Aktif", "Non-aktif"],
       satuan_type: ["KG", "Liter", "Ml", "Pcs"],
     },
   },

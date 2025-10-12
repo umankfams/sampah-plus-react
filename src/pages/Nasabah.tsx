@@ -3,6 +3,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -28,6 +36,7 @@ interface Profile {
   no_hp: string;
   nama: string;
   saldo: number;
+  status: string;
 }
 
 export default function Nasabah() {
@@ -40,6 +49,7 @@ export default function Nasabah() {
     no_induk: "",
     no_hp: "",
     nama: "",
+    status: "Aktif" as "Aktif" | "Non-aktif",
   });
 
   useEffect(() => {
@@ -82,7 +92,7 @@ export default function Nasabah() {
 
       setDialogOpen(false);
       setEditingProfile(null);
-      setFormData({ no_induk: "", no_hp: "", nama: "" });
+      setFormData({ no_induk: "", no_hp: "", nama: "", status: "Aktif" });
       loadProfiles();
     } catch (error: any) {
       toast({
@@ -99,6 +109,7 @@ export default function Nasabah() {
       no_induk: profile.no_induk,
       no_hp: profile.no_hp,
       nama: profile.nama,
+      status: profile.status as "Aktif" | "Non-aktif",
     });
     setDialogOpen(true);
   };
@@ -136,6 +147,7 @@ export default function Nasabah() {
               <TableHead>No Induk</TableHead>
               <TableHead>Nama</TableHead>
               <TableHead>No HP</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead className="text-right">Saldo</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
@@ -143,11 +155,11 @@ export default function Nasabah() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">Loading...</TableCell>
+                <TableCell colSpan={6} className="text-center">Loading...</TableCell>
               </TableRow>
             ) : profiles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center">Belum ada data</TableCell>
+                <TableCell colSpan={6} className="text-center">Belum ada data</TableCell>
               </TableRow>
             ) : (
               profiles.map((profile) => (
@@ -155,6 +167,11 @@ export default function Nasabah() {
                   <TableCell>{profile.no_induk}</TableCell>
                   <TableCell>{profile.nama}</TableCell>
                   <TableCell>{profile.no_hp}</TableCell>
+                  <TableCell>
+                    <Badge variant={profile.status === "Aktif" ? "default" : "secondary"}>
+                      {profile.status}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right font-semibold">
                     Rp {profile.saldo.toLocaleString("id-ID")}
                   </TableCell>
@@ -219,6 +236,21 @@ export default function Nasabah() {
                 onChange={(e) => setFormData({ ...formData, no_hp: e.target.value })}
                 required
               />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={formData.status}
+                onValueChange={(value) => setFormData({ ...formData, status: value as "Aktif" | "Non-aktif" })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Aktif">Aktif</SelectItem>
+                  <SelectItem value="Non-aktif">Non-aktif</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
