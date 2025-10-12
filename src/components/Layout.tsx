@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +13,7 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
 
@@ -24,6 +25,23 @@ export function Layout({ children }: LayoutProps) {
         
         if (!session) {
           navigate("/auth");
+        } else {
+          // Check role and redirect non-admin users from admin pages
+          setTimeout(async () => {
+            const { data: roleData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', session.user.id)
+              .eq('role', 'admin')
+              .single();
+            
+            const isAdmin = !!roleData;
+            const adminPaths = ['/', '/nasabah', '/jenis-sampah', '/transaksi', '/cashout'];
+            
+            if (!isAdmin && adminPaths.includes(location.pathname)) {
+              navigate('/profile', { replace: true });
+            }
+          }, 0);
         }
       }
     );
@@ -34,11 +52,28 @@ export function Layout({ children }: LayoutProps) {
       
       if (!session) {
         navigate("/auth");
+      } else {
+        // Check role and redirect non-admin users from admin pages
+        setTimeout(async () => {
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .eq('role', 'admin')
+            .single();
+          
+          const isAdmin = !!roleData;
+          const adminPaths = ['/', '/nasabah', '/jenis-sampah', '/transaksi', '/cashout'];
+          
+          if (!isAdmin && adminPaths.includes(location.pathname)) {
+            navigate('/profile', { replace: true });
+          }
+        }, 0);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, location.pathname]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

@@ -1,5 +1,7 @@
 import { Home, Users, Trash2, Receipt, Banknote, User2 } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +15,7 @@ import {
 } from "@/components/ui/sidebar";
 import logo from "@/assets/logo.jpg";
 
-const menuItems = [
+const adminMenuItems = [
   { title: "Dashboard", url: "/", icon: Home },
   { title: "Data Nasabah", url: "/nasabah", icon: Users },
   { title: "Jenis Sampah", url: "/jenis-sampah", icon: Trash2 },
@@ -22,7 +24,51 @@ const menuItems = [
   { title: "Profile", url: "/profile", icon: User2 },
 ];
 
+const userMenuItems = [
+  { title: "Profile", url: "/profile", icon: User2 },
+];
+
 export function AppSidebar() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkUserRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .single();
+        
+        setIsAdmin(!!roleData);
+      }
+      setLoading(false);
+    };
+
+    checkUserRole();
+  }, []);
+
+  const menuItems = isAdmin ? adminMenuItems : userMenuItems;
+
+  if (loading) {
+    return (
+      <Sidebar>
+        <SidebarHeader className="border-b border-sidebar-border p-4">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="Bank Sampah Logo" className="h-12 w-12 rounded-full" />
+            <div className="flex flex-col">
+              <span className="text-sm font-bold text-sidebar-foreground">SiBasTara</span>
+              <span className="text-xs text-muted-foreground">Bank Sampah</span>
+            </div>
+          </div>
+        </SidebarHeader>
+      </Sidebar>
+    );
+  }
+
   return (
     <Sidebar>
       <SidebarHeader className="border-b border-sidebar-border p-4">
