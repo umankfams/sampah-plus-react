@@ -12,6 +12,7 @@ import Transaksi from "./pages/Transaksi";
 import Cashout from "./pages/Cashout";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profil.tsx";
+import HistoryTransaction from "./pages/HistoryTransaksi.tsx";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/transaksi" element={<Layout><Transaksi /></Layout>} />
           <Route path="/cashout" element={<Layout><Cashout /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
+          <Route path="/history-transaksi" element={<Layout><HistoryTransaction /></Layout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
