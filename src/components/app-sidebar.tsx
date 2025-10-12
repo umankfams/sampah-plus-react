@@ -1,4 +1,4 @@
-import { Home, Users, Trash2, Receipt, Banknote, User2, BadgeCent } from "lucide-react";
+import { Home, Users, Trash2, Receipt, Banknote, User2, BadgeCent, CheckSquare } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,7 @@ const adminMenuItems = [
   { title: "Jenis Sampah", url: "/jenis-sampah", icon: Trash2 },
   { title: "Transaksi", url: "/transaksi", icon: Receipt },
   { title: "Cashout", url: "/cashout", icon: Banknote },
+  { title: "Persetujuan Cashout", url: "/cashout-approval", icon: CheckSquare },
   { title: "Profile", url: "/profile", icon: User2 },
 ];
 

@@ -21,6 +21,7 @@ export type Database = {
           jumlah: number
           keterangan: string | null
           nasabah_id: string
+          status: Database["public"]["Enums"]["cashout_status"]
           tanggal_cashout: string
           updated_at: string
         }
@@ -30,6 +31,7 @@ export type Database = {
           jumlah: number
           keterangan?: string | null
           nasabah_id: string
+          status?: Database["public"]["Enums"]["cashout_status"]
           tanggal_cashout?: string
           updated_at?: string
         }
@@ -39,6 +41,7 @@ export type Database = {
           jumlah?: number
           keterangan?: string | null
           nasabah_id?: string
+          status?: Database["public"]["Enums"]["cashout_status"]
           tanggal_cashout?: string
           updated_at?: string
         }
@@ -225,6 +228,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      cashout_status: "pending" | "approved" | "rejected"
       satuan_type: "KG" | "Liter" | "Ml" | "Pcs"
     }
     CompositeTypes: {
@@ -354,6 +358,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      cashout_status: ["pending", "approved", "rejected"],
       satuan_type: ["KG", "Liter", "Ml", "Pcs"],
     },
   },
