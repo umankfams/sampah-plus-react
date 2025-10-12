@@ -1,6 +1,15 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -13,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { CreditCard, Edit, User } from "lucide-react";
+// dialog & table components already imported above
 
 interface Profile {
   id: string;
@@ -29,6 +39,14 @@ export default function Profil() {
   const [selected, setSelected] = useState<Profile | null>(null);
   const [editOpen, setEditOpen] = useState(false);
   const [name, setName] = useState("");
+  const [transactions, setTransactions] = useState<Array<{ id: string; tanggal_transaksi: string; total_setoran: number }>>([]);
+  const [transLoading, setTransLoading] = useState(false);
+  const [cashouts, setCashouts] = useState<Array<{ id: string; tanggal_cashout: string; jumlah: number; keterangan?: string }>>([]);
+  const [cashLoading, setCashLoading] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailItems, setDetailItems] = useState<Array<{ jenis_sampah_id: string; jumlah_kg: number; harga_per_kg: number; subtotal: number; nama_sampah?: string }>>([]);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [selectedTransaksiId, setSelectedTransaksiId] = useState<string | null>(null);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
@@ -94,6 +112,114 @@ export default function Profil() {
     }
   };
 
+  const loadTransactions = useCallback(async (nasabahId: string | null) => {
+    setTransLoading(true);
+    try {
+      if (!nasabahId) {
+        setTransactions([]);
+        return;
+      }
+      const { data, error } = await supabase
+        .from("transaksi")
+        .select("*")
+        .eq("nasabah_id", nasabahId)
+        .order("tanggal_transaksi", { ascending: false });
+
+      if (error) throw error;
+      setTransactions(data || []);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast({ title: "Error", description: message, variant: "destructive" });
+    } finally {
+      setTransLoading(false);
+    }
+  }, [toast]);
+
+  const loadCashouts = useCallback(async (nasabahId: string | null) => {
+    setCashLoading(true);
+    try {
+      if (!nasabahId) {
+        setCashouts([]);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("cashout")
+        .select("*")
+        .eq("nasabah_id", nasabahId)
+        .order("tanggal_cashout", { ascending: false });
+
+      if (error) throw error;
+      setCashouts(data || []);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast({ title: "Error", description: message, variant: "destructive" });
+    } finally {
+      setCashLoading(false);
+    }
+  }, [toast]);
+
+  const activity = useMemo(() => {
+    const tx = transactions.map((t) => ({
+      id: t.id,
+      type: "transaksi" as const,
+      date: t.tanggal_transaksi,
+      amount: t.total_setoran,
+    }));
+
+    const co = cashouts.map((c) => ({
+      id: c.id,
+      type: "cashout" as const,
+      date: c.tanggal_cashout,
+      amount: c.jumlah,
+      note: c.keterangan,
+    }));
+
+    return [...tx, ...co].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [transactions, cashouts]);
+
+  const openDetail = async (transaksiId: string) => {
+    setSelectedTransaksiId(transaksiId);
+    setDetailOpen(true);
+    setDetailLoading(true);
+    try {
+      // fetch transaksi_detail (and optionally jenis_sampah details)
+      const { data, error } = await supabase
+        .from("transaksi_detail")
+        .select("*, jenis_sampah(*)")
+        .eq("transaksi_id", transaksiId);
+
+      if (error) throw error;
+
+      type DetailRow = {
+        jenis_sampah_id: string;
+        jumlah_kg: number;
+        harga_per_kg: number;
+        subtotal: number;
+        jenis_sampah?: { nama?: string } | null;
+      };
+      const items = (data || []).map((d: DetailRow) => ({
+        jenis_sampah_id: d.jenis_sampah_id,
+        jumlah_kg: d.jumlah_kg,
+        harga_per_kg: d.harga_per_kg,
+        subtotal: d.subtotal,
+        nama_sampah: d.jenis_sampah?.nama,
+      }));
+      setDetailItems(items);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast({ title: "Error", description: message, variant: "destructive" });
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  // fetch transactions when selected profile changes
+  useEffect(() => {
+    void loadTransactions(selected?.id || null);
+    void loadCashouts(selected?.id || null);
+  }, [selected, loadTransactions, loadCashouts]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -125,9 +251,13 @@ export default function Profil() {
                 <div className="text-sm text-muted-foreground">Saldo</div>
                 <div className="mt-2 text-4xl font-extrabold">
                   {selected ? (
+                    
                     <span>
-                      Rp {selected.saldo.toLocaleString("id-ID")}
+                        <CreditCard className="h-8 w-8 text-muted-foreground" />
+                     
+                        Rp {selected.saldo.toLocaleString("id-ID")}
                     </span>
+                    
                   ) : (
                     <span className="text-muted-foreground">-</span>
                   )}
@@ -135,16 +265,13 @@ export default function Profil() {
                 <div className="mt-1 text-sm text-muted-foreground">Saldo tersedia untuk penarikan dan transaksi</div>
               </div>
 
-              <div className="w-48 p-4 rounded-lg bg-muted/40 flex flex-col items-center justify-center">
-                <CreditCard className="h-8 w-8 text-muted-foreground" />
-                <div className="mt-2 text-xs text-muted-foreground">Ringkasan</div>
-                <div className="mt-1 font-medium">{selected ? `Rp ${selected.saldo.toLocaleString("id-ID")}` : "-"}</div>
-              </div>
+              
             </div>
-          </div>
+            </div>
+            
 
-          <div className="mt-6 flex gap-2 justify-end">
-            <Button onClick={loadProfiles} variant="outline">Refresh</Button>
+          <div className="mt-6 flex gap-2 justify-center">
+            
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
               <DialogTrigger asChild>
                 <span />
@@ -166,8 +293,76 @@ export default function Profil() {
                 </form>
               </DialogContent>
             </Dialog>
+            <div className="flex w-full flex-col">
+              {/* Transactions history */}
+            <div className="mt-6 flex-1">
+              <h4 className="text-lg font-medium mb-3">Riwayat Transaksi</h4>
+              <div className="bg-card rounded-lg border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tanggal</TableHead>
+                      <TableHead className="text-right">Total Setoran</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {transLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={2} className="text-center">Loading...</TableCell>
+                      </TableRow>
+                    ) : transactions.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={2} className="text-center">Belum ada transaksi</TableCell>
+                      </TableRow>
+                    ) : (
+                      transactions.map((t) => (
+                        <TableRow key={t.id}>
+                          <TableCell>{new Date(t.tanggal_transaksi).toLocaleDateString("id-ID")}</TableCell>
+                          <TableCell className="text-right">Rp {t.total_setoran.toLocaleString("id-ID")}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+            {/* Cashout history */}
+            <div className="mt-6 flex-1">
+              <h4 className="text-lg font-medium mb-3">Riwayat Cashout</h4>
+              <div className="bg-card rounded-lg border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Tanggal</TableHead>
+                      <TableHead className="text-right">Jumlah</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {cashLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center">Loading...</TableCell>
+                      </TableRow>
+                    ) : cashouts.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={3} className="text-center">Belum ada cashout</TableCell>
+                      </TableRow>
+                    ) : (
+                      cashouts.map((c) => (
+                        <TableRow key={c.id}>
+                          <TableCell>{new Date(c.tanggal_cashout).toLocaleDateString("id-ID")}</TableCell>
+                          <TableCell className="text-right">Rp {c.jumlah.toLocaleString("id-ID")}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+            </div>
           </div>
-        </div>
+              </div>
+          <Button onClick={loadProfiles} variant="outline"><RefreshCw/>Refresh</Button>
+        
       </div>
     </div>
   );
