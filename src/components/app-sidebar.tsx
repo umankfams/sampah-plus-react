@@ -20,7 +20,6 @@ const adminMenuItems = [
   { title: "Data Nasabah", url: "/nasabah", icon: Users },
   { title: "Jenis Sampah", url: "/jenis-sampah", icon: Trash2 },
   { title: "Transaksi", url: "/transaksi", icon: Receipt },
-  { title: "Cashout", url: "/cashout", icon: Banknote },
   { title: "Persetujuan Cashout", url: "/cashout-approval", icon: CheckSquare },
   { title: "Profile", url: "/profile", icon: User2 },
 ];
