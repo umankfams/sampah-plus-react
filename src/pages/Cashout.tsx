@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -42,6 +43,9 @@ interface Cashout {
   tanggal_cashout: string;
   jumlah: number;
   keterangan: string | null;
+  metode_pembayaran: string;
+  nomor_akun: string | null;
+  status: string;
   profiles: {
     nama: string;
     no_induk: string;
@@ -51,16 +55,15 @@ interface Cashout {
 export default function Cashout() {
   const { toast } = useToast();
   const [cashouts, setCashouts] = useState<Cashout[]>([]);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [currentUser, setCurrentUser] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
-    nasabah_id: "",
-    tanggal_cashout: new Date().toISOString().split("T")[0],
     jumlah: "",
     keterangan: "",
+    metode_pembayaran: "Cash",
+    nomor_akun: "",
   });
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     loadData();
@@ -68,19 +71,23 @@ export default function Cashout() {
 
   const loadData = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const [cashoutResult, profileResult] = await Promise.all([
         supabase
           .from("cashout")
           .select("*, profiles(nama, no_induk)")
+          .eq("nasabah_id", user.id)
           .order("tanggal_cashout", { ascending: false }),
-        supabase.from("profiles").select("*").order("nama"),
+        supabase.from("profiles").select("*").eq("id", user.id).single(),
       ]);
 
       if (cashoutResult.error) throw cashoutResult.error;
       if (profileResult.error) throw profileResult.error;
 
       setCashouts(cashoutResult.data || []);
-      setProfiles(profileResult.data || []);
+      setCurrentUser(profileResult.data);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -92,19 +99,13 @@ export default function Cashout() {
     }
   };
 
-  const handleProfileChange = (profileId: string) => {
-    const profile = profiles.find((p) => p.id === profileId);
-    setSelectedProfile(profile || null);
-    setFormData({ ...formData, nasabah_id: profileId });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedProfile) return;
+    if (!currentUser) return;
 
     const jumlah = parseFloat(formData.jumlah);
-    if (jumlah > selectedProfile.saldo) {
+    if (jumlah > currentUser.saldo) {
       toast({
         title: "Error",
         description: "Jumlah penarikan melebihi saldo",
@@ -113,29 +114,43 @@ export default function Cashout() {
       return;
     }
 
+    // Validate account number for digital wallets
+    if (formData.metode_pembayaran !== "Cash" && !formData.nomor_akun) {
+      toast({
+        title: "Error",
+        description: "Nomor akun harus diisi untuk metode pembayaran digital",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
       const { error } = await supabase.from("cashout").insert({
-        nasabah_id: formData.nasabah_id,
-        tanggal_cashout: formData.tanggal_cashout,
+        nasabah_id: user.id,
         jumlah: jumlah,
         keterangan: formData.keterangan || null,
+        metode_pembayaran: formData.metode_pembayaran as any,
+        nomor_akun: formData.metode_pembayaran === "Cash" ? null : formData.nomor_akun,
+        status: "pending" as any,
       });
 
       if (error) throw error;
 
       toast({
         title: "Berhasil",
-        description: "Cashout berhasil diproses",
+        description: "Permintaan cashout berhasil dikirim dan menunggu persetujuan admin",
       });
 
       setDialogOpen(false);
       setFormData({
-        nasabah_id: "",
-        tanggal_cashout: new Date().toISOString().split("T")[0],
         jumlah: "",
         keterangan: "",
+        metode_pembayaran: "Cash",
+        nomor_akun: "",
       });
-      setSelectedProfile(null);
       loadData();
     } catch (error: any) {
       toast({
@@ -169,12 +184,17 @@ export default function Cashout() {
         <div>
           <h1 className="text-3xl font-bold">Cashout</h1>
           <p className="text-muted-foreground">
-            Penarikan saldo nasabah bank sampah
+            Ajukan permintaan penarikan saldo
           </p>
+          {currentUser && (
+            <p className="text-sm mt-2">
+              Saldo tersedia: <span className="font-semibold">Rp {currentUser.saldo.toLocaleString("id-ID")}</span>
+            </p>
+          )}
         </div>
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Tambah Cashout
+          Ajukan Cashout
         </Button>
       </div>
 
@@ -183,9 +203,10 @@ export default function Cashout() {
           <TableHeader>
             <TableRow>
               <TableHead>Tanggal</TableHead>
-              <TableHead>No Induk</TableHead>
-              <TableHead>Nama Nasabah</TableHead>
               <TableHead className="text-right">Jumlah</TableHead>
+              <TableHead>Metode Pembayaran</TableHead>
+              <TableHead>Nomor Akun</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Keterangan</TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
@@ -193,13 +214,13 @@ export default function Cashout() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center">
+                <TableCell colSpan={7} className="text-center">
                   Loading...
                 </TableCell>
               </TableRow>
             ) : cashouts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center">
+                <TableCell colSpan={7} className="text-center">
                   Belum ada data
                 </TableCell>
               </TableRow>
@@ -211,20 +232,33 @@ export default function Cashout() {
                       "id-ID"
                     )}
                   </TableCell>
-                  <TableCell>{cashout.profiles.no_induk}</TableCell>
-                  <TableCell>{cashout.profiles.nama}</TableCell>
                   <TableCell className="text-right font-semibold">
                     Rp {cashout.jumlah.toLocaleString("id-ID")}
                   </TableCell>
+                  <TableCell>{cashout.metode_pembayaran}</TableCell>
+                  <TableCell>{cashout.nomor_akun || "-"}</TableCell>
+                  <TableCell>
+                    <Badge variant={
+                      cashout.status === "approved" ? "default" :
+                      cashout.status === "rejected" ? "destructive" :
+                      "secondary"
+                    }>
+                      {cashout.status === "approved" ? "Disetujui" :
+                       cashout.status === "rejected" ? "Ditolak" :
+                       "Menunggu"}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{cashout.keterangan || "-"}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(cashout.id)}
-                    >
-                      <Trash className="h-4 w-4" />
-                    </Button>
+                    {cashout.status === "pending" && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(cashout.id)}
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
@@ -236,53 +270,21 @@ export default function Cashout() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Tambah Cashout</DialogTitle>
+            <DialogTitle>Ajukan Cashout</DialogTitle>
             <DialogDescription>
-              Input data penarikan saldo nasabah
+              Ajukan permintaan penarikan saldo Anda
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {currentUser && (
+              <div className="bg-muted p-3 rounded-md">
+                <p className="text-sm">
+                  Saldo tersedia: <span className="font-semibold">Rp {currentUser.saldo.toLocaleString("id-ID")}</span>
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
-              <Label htmlFor="nasabah_id">Nasabah</Label>
-              <Select
-                value={formData.nasabah_id}
-                onValueChange={handleProfileChange}
-                required
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Pilih nasabah" />
-                </SelectTrigger>
-                <SelectContent>
-                  {profiles.map((profile) => (
-                    <SelectItem key={profile.id} value={profile.id}>
-                      {profile.no_induk} - {profile.nama} (Saldo: Rp{" "}
-                      {profile.saldo.toLocaleString("id-ID")})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="tanggal_cashout">Tanggal</Label>
-              <Input
-                id="tanggal_cashout"
-                type="date"
-                value={formData.tanggal_cashout}
-                onChange={(e) =>
-                  setFormData({ ...formData, tanggal_cashout: e.target.value })
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="jumlah">
-                Jumlah
-                {selectedProfile && (
-                  <span className="text-sm text-muted-foreground ml-2">
-                    (Saldo: Rp {selectedProfile.saldo.toLocaleString("id-ID")})
-                  </span>
-                )}
-              </Label>
+              <Label htmlFor="jumlah">Jumlah Penarikan</Label>
               <Input
                 id="jumlah"
                 type="number"
@@ -291,9 +293,44 @@ export default function Cashout() {
                 onChange={(e) =>
                   setFormData({ ...formData, jumlah: e.target.value })
                 }
+                placeholder="Masukkan jumlah"
                 required
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="metode_pembayaran">Metode Pembayaran</Label>
+              <Select
+                value={formData.metode_pembayaran}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, metode_pembayaran: value, nomor_akun: "" })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="Gopay">Gopay</SelectItem>
+                  <SelectItem value="OVO">OVO</SelectItem>
+                  <SelectItem value="ShopeePay">ShopeePay</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {formData.metode_pembayaran !== "Cash" && (
+              <div className="space-y-2">
+                <Label htmlFor="nomor_akun">Nomor HP / Akun</Label>
+                <Input
+                  id="nomor_akun"
+                  type="tel"
+                  value={formData.nomor_akun}
+                  onChange={(e) =>
+                    setFormData({ ...formData, nomor_akun: e.target.value })
+                  }
+                  placeholder="Masukkan nomor HP untuk dompet digital"
+                  required
+                />
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="keterangan">Keterangan</Label>
               <Textarea
@@ -313,7 +350,7 @@ export default function Cashout() {
               >
                 Batal
               </Button>
-              <Button type="submit">Simpan</Button>
+              <Button type="submit">Ajukan Cashout</Button>
             </div>
           </form>
         </DialogContent>

@@ -20,7 +20,9 @@ export type Database = {
           id: string
           jumlah: number
           keterangan: string | null
+          metode_pembayaran: Database["public"]["Enums"]["payment_method"]
           nasabah_id: string
+          nomor_akun: string | null
           status: Database["public"]["Enums"]["cashout_status"]
           tanggal_cashout: string
           updated_at: string
@@ -30,7 +32,9 @@ export type Database = {
           id?: string
           jumlah: number
           keterangan?: string | null
+          metode_pembayaran?: Database["public"]["Enums"]["payment_method"]
           nasabah_id: string
+          nomor_akun?: string | null
           status?: Database["public"]["Enums"]["cashout_status"]
           tanggal_cashout?: string
           updated_at?: string
@@ -40,7 +44,9 @@ export type Database = {
           id?: string
           jumlah?: number
           keterangan?: string | null
+          metode_pembayaran?: Database["public"]["Enums"]["payment_method"]
           nasabah_id?: string
+          nomor_akun?: string | null
           status?: Database["public"]["Enums"]["cashout_status"]
           tanggal_cashout?: string
           updated_at?: string
@@ -232,6 +238,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       cashout_status: "pending" | "approved" | "rejected"
+      payment_method: "Cash" | "Gopay" | "OVO" | "ShopeePay"
       profile_status: "Aktif" | "Non-aktif"
       satuan_type: "KG" | "Liter" | "Ml" | "Pcs"
     }
@@ -363,6 +370,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       cashout_status: ["pending", "approved", "rejected"],
+      payment_method: ["Cash", "Gopay", "OVO", "ShopeePay"],
       profile_status: ["Aktif", "Non-aktif"],
       satuan_type: ["KG", "Liter", "Ml", "Pcs"],
     },
