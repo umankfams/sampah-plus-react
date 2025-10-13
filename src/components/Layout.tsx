@@ -36,7 +36,7 @@ export function Layout({ children }: LayoutProps) {
               .single();
             
             const isAdmin = !!roleData;
-            const adminPaths = ['/', '/nasabah', '/jenis-sampah', '/transaksi', '/cashout', '/cashout-approval'];
+            const adminPaths = ['/', '/nasabah', '/jenis-sampah', '/transaksi', '/cashout-approval'];
             
             if (!isAdmin && adminPaths.includes(location.pathname)) {
               navigate('/profile', { replace: true });
@@ -63,7 +63,7 @@ export function Layout({ children }: LayoutProps) {
             .single();
           
           const isAdmin = !!roleData;
-          const adminPaths = ['/', '/nasabah', '/jenis-sampah', '/transaksi', '/cashout', '/cashout-approval'];
+          const adminPaths = ['/', '/nasabah', '/jenis-sampah', '/transaksi', '/cashout-approval'];
           
           if (!isAdmin && adminPaths.includes(location.pathname)) {
             navigate('/profile', { replace: true });
