@@ -18,7 +18,8 @@ interface CashoutRequest {
   nasabah_id: string;
   tanggal_cashout: string;
   jumlah: number;
-  keterangan: string | null;
+  metode_pembayaran: string;
+  nomor_akun: string | null;
   status: string;
   profiles: {
     nama: string;
@@ -40,7 +41,12 @@ export default function CashoutApproval() {
       const { data, error } = await supabase
         .from("cashout")
         .select(`
-          *,
+          id,
+          tanggal_cashout,
+          jumlah,
+          metode_pembayaran,
+          nomor_akun,
+          status,
           profiles:nasabah_id (
             nama,
             no_induk
@@ -140,7 +146,8 @@ export default function CashoutApproval() {
                 <TableHead>Nama Nasabah</TableHead>
                 <TableHead>No. Induk</TableHead>
                 <TableHead>Jumlah</TableHead>
-                <TableHead>Keterangan</TableHead>
+                <TableHead>Metode Pembayaran</TableHead>
+                <TableHead>No. Akun/Tujuan</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Aksi</TableHead>
               </TableRow>
@@ -152,7 +159,8 @@ export default function CashoutApproval() {
                   <TableCell>{cashout.profiles?.nama}</TableCell>
                   <TableCell>{cashout.profiles?.no_induk}</TableCell>
                   <TableCell>Rp {cashout.jumlah.toLocaleString('id-ID')}</TableCell>
-                  <TableCell>{cashout.keterangan || "-"}</TableCell>
+                  <TableCell>{cashout.metode_pembayaran}</TableCell>
+                  <TableCell>{cashout.nomor_akun || '-'}</TableCell>
                   <TableCell>{getStatusBadge(cashout.status)}</TableCell>
                   <TableCell>
                     {cashout.status === "pending" && (
