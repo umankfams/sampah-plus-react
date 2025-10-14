@@ -33,6 +33,7 @@ const App = () => (
           <Route path="/cashout-approval" element={<Layout><CashoutApproval /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
           <Route path="/history-transaksi" element={<Layout><HistoryTransaction /></Layout>} />
+          <Route path="/laporan-transaksi" element={<Layout><LaporanTransaksi /></Layout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
