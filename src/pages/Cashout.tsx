@@ -313,6 +313,7 @@ export default function Cashout() {
                   <SelectItem value="Gopay">Gopay</SelectItem>
                   <SelectItem value="OVO">OVO</SelectItem>
                   <SelectItem value="ShopeePay">ShopeePay</SelectItem>
+                  <SelectItem value="DANA">DANA</SelectItem>
                 </SelectContent>
               </Select>
             </div>
