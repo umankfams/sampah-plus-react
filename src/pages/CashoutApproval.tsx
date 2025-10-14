@@ -42,6 +42,7 @@ export default function CashoutApproval() {
         .from("cashout")
         .select(`
           id,
+          nasabah_id,
           tanggal_cashout,
           jumlah,
           metode_pembayaran,
