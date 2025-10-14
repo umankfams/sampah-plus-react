@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, FileDown } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import * as XLSX from "xlsx";
 
 interface Transaksi {
   id: string;
@@ -100,14 +101,49 @@ export default function LaporanTransaksi() {
     setSelectedYear(null);
   }
 
+  const handleExportToExcel = () => {
+    if (items.length === 0) {
+      toast({
+        title: "Tidak ada data",
+        description: "Tidak ada data untuk diekspor",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const exportData = items.map((t) => ({
+      Tanggal: new Date(t.tanggal_transaksi).toLocaleDateString("id-ID"),
+      Nasabah: t.profiles.nama,
+      "Total Setoran": t.total_setoran,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Transaksi");
+
+    const fileName = `Laporan_Transaksi_${format(new Date(), "yyyy-MM-dd")}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+
+    toast({
+      title: "Berhasil",
+      description: "Data berhasil diekspor ke Excel",
+    });
+  };
+
   const years = Array.from({ length: 10 }, (_, i) => (new Date().getFullYear() - i).toString());
   const months = Array.from({ length: 12 }, (_, i) => ({ value: (i + 1).toString(), label: new Date(0, i).toLocaleString('id-ID', { month: 'long' }) }));
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Laporan Transaksi</h1>
-        <p className="text-muted-foreground">Lihat dan filter laporan setoran sampah.</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Laporan Transaksi</h1>
+          <p className="text-muted-foreground">Lihat dan filter laporan setoran sampah.</p>
+        </div>
+        <Button onClick={handleExportToExcel} className="gap-2">
+          <FileDown className="h-4 w-4" />
+          Export to Excel
+        </Button>
       </div>
 
       <div className="flex flex-wrap items-center gap-4">
