@@ -238,7 +238,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       cashout_status: "pending" | "approved" | "rejected"
-      payment_method: "Cash" | "Gopay" | "OVO" | "ShopeePay"
+      payment_method: "Cash" | "Gopay" | "OVO" | "ShopeePay" | "DANA"
       profile_status: "Aktif" | "Non-aktif"
       satuan_type: "KG" | "Liter" | "Ml" | "Pcs"
     }
@@ -370,7 +370,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       cashout_status: ["pending", "approved", "rejected"],
-      payment_method: ["Cash", "Gopay", "OVO", "ShopeePay"],
+      payment_method: ["Cash", "Gopay", "OVO", "ShopeePay", "DANA"],
       profile_status: ["Aktif", "Non-aktif"],
       satuan_type: ["KG", "Liter", "Ml", "Pcs"],
     },
