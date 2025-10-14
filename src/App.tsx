@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profil.tsx";
 import HistoryTransaction from "./pages/HistoryTransaksi.tsx";
 import CashoutApproval from "./pages/CashoutApproval";
+import LaporanTransaksi from "./pages/LaporanTransaksi";
 
 const queryClient = new QueryClient();
 
