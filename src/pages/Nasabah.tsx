@@ -28,7 +28,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash } from "lucide-react";
+import { Plus, Pencil, Trash, Search, ArrowUpDown } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -45,6 +45,9 @@ export default function Nasabah() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortField, setSortField] = useState<keyof Profile>("nama");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [formData, setFormData] = useState({
     no_induk: "",
     no_hp: "",
@@ -131,6 +134,41 @@ export default function Nasabah() {
     }
   };
 
+  const handleSort = (field: keyof Profile) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const filteredAndSortedProfiles = profiles
+    .filter((profile) => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        profile.nama.toLowerCase().includes(searchLower) ||
+        profile.no_induk.toLowerCase().includes(searchLower) ||
+        profile.no_hp.toLowerCase().includes(searchLower)
+      );
+    })
+    .sort((a, b) => {
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+      
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sortDirection === "asc"
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+      
+      if (typeof aValue === "number" && typeof bValue === "number") {
+        return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
+      }
+      
+      return 0;
+    });
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -140,15 +178,77 @@ export default function Nasabah() {
         </div>
       </div>
 
+      <div className="flex items-center gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Cari nama, no induk, atau no HP..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+
       <div className="bg-card rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>No Induk</TableHead>
-              <TableHead>Nama</TableHead>
-              <TableHead>No HP</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Saldo</TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleSort("no_induk")}
+                  className="gap-2 h-auto p-0 hover:bg-transparent"
+                >
+                  No Induk
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleSort("nama")}
+                  className="gap-2 h-auto p-0 hover:bg-transparent"
+                >
+                  Nama
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleSort("no_hp")}
+                  className="gap-2 h-auto p-0 hover:bg-transparent"
+                >
+                  No HP
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleSort("status")}
+                  className="gap-2 h-auto p-0 hover:bg-transparent"
+                >
+                  Status
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </TableHead>
+              <TableHead className="text-right">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleSort("saldo")}
+                  className="gap-2 h-auto p-0 hover:bg-transparent"
+                >
+                  Saldo
+                  <ArrowUpDown className="h-4 w-4" />
+                </Button>
+              </TableHead>
               <TableHead className="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
@@ -157,12 +257,14 @@ export default function Nasabah() {
               <TableRow>
                 <TableCell colSpan={6} className="text-center">Loading...</TableCell>
               </TableRow>
-            ) : profiles.length === 0 ? (
+            ) : filteredAndSortedProfiles.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center">Belum ada data</TableCell>
+                <TableCell colSpan={6} className="text-center">
+                  {searchQuery ? "Tidak ada data yang sesuai dengan pencarian" : "Belum ada data"}
+                </TableCell>
               </TableRow>
             ) : (
-              profiles.map((profile) => (
+              filteredAndSortedProfiles.map((profile) => (
                 <TableRow key={profile.id}>
                   <TableCell>{profile.no_induk}</TableCell>
                   <TableCell>{profile.nama}</TableCell>
