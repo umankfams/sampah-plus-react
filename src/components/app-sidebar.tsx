@@ -16,7 +16,7 @@ import {
 import logo from "@/assets/logo.jpg";
 
 const adminMenuItems = [
-  { title: "Dashboard", url: "/", icon: Home },
+  { title: "Dashboard", url: "/dashboard", icon: Home },
   { title: "Data Nasabah", url: "/nasabah", icon: Users },
   { title: "Jenis Sampah", url: "/jenis-sampah", icon: Trash2 },
   { title: "Transaksi", url: "/transaksi", icon: Receipt },
