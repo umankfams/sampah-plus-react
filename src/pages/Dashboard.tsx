@@ -163,7 +163,7 @@ export default function Dashboard() {
             <ChartContainer
               config={{
                 jumlah: {
-                  label: "Jumlah (KG)",
+                  label: "Jumlah",
                   color: "hsl(var(--primary))",
                 },
               }}
@@ -194,7 +194,7 @@ export default function Dashboard() {
             <ChartContainer
               config={{
                 jumlah: {
-                  label: "Jumlah (KG)",
+                  label: "Jumlah",
                   color: "hsl(var(--primary))",
                 },
               }}
