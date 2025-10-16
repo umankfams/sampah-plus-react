@@ -34,13 +34,13 @@ export default function Auth() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/");
+        navigate("/profile");
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        navigate("/");
+        navigate("/profile");
       }
     });
 
@@ -153,7 +153,7 @@ export default function Auth() {
           title: "Pendaftaran berhasil",
           description: "Selamat datang di SiBasTara!",
         });
-        navigate("/");
+        navigate("/profile");
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
