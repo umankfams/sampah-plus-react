@@ -15,7 +15,10 @@ const authSchema = z.object({
 });
 
 const signupSchema = authSchema.extend({
-  noInduk: z.string().min(1, "No Induk wajib diisi"),
+  noInduk: z
+    .string()
+    .min(1, "No Induk wajib diisi")
+    .regex(/^BSN-017-\d{4}$/, "No Induk harus berformat BSN-017-XXXX"),
   nama: z.string().min(1, "Nama wajib diisi"),
 });
 
