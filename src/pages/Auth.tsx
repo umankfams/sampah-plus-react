@@ -73,7 +73,7 @@ export default function Auth() {
           title: "Login berhasil",
           description: "Selamat datang kembali!",
         });
-        navigate("/");
+        navigate("/profile");
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
