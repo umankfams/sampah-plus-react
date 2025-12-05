@@ -134,23 +134,8 @@ export default function Auth() {
           return;
         }
 
-        // Assign admin role to super admin phone number (+6281255691234)
-        if (formData.phone === "+6281255691234") {
-          await supabase
-            .from("user_roles")
-            .insert({
-              user_id: data.user.id,
-              role: "admin",
-            });
-        } else {
-          // Assign user role to regular users
-          await supabase
-            .from("user_roles")
-            .insert({
-              user_id: data.user.id,
-              role: "user",
-            });
-        }
+        // Role assignment is now handled automatically by database trigger
+        // based on admin_phones table lookup
 
         toast({
           title: "Pendaftaran berhasil",
