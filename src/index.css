@@ -2,89 +2,89 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* e-Bank Sampah Jakarta Design System */
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 10%;
+    --background: 120 10% 98%;
+    --foreground: 130 54% 14%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 130 54% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 130 54% 14%;
 
-    --primary: 150 70% 35%;
+    --primary: 130 54% 14%;
     --primary-foreground: 0 0% 100%;
+    --primary-dark: 130 54% 10%;
 
-    --secondary: 150 60% 96%;
-    --secondary-foreground: 150 70% 20%;
+    --secondary: 130 30% 94%;
+    --secondary-foreground: 130 54% 14%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 0 5% 34%;
+    --muted-foreground: 0 5% 45%;
 
-    --accent: 3 84% 55%;
+    --accent: 130 45% 25%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 150 70% 35%;
+    --border: 130 20% 88%;
+    --input: 130 20% 88%;
+    --ring: 130 54% 14%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 20%;
-    --sidebar-primary: 150 70% 35%;
+    --sidebar-foreground: 130 54% 14%;
+    --sidebar-primary: 130 54% 14%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 60% 96%;
-    --sidebar-accent-foreground: 150 70% 20%;
-    --sidebar-border: 0 0% 93%;
-    --sidebar-ring: 150 70% 35%;
+    --sidebar-accent: 130 30% 94%;
+    --sidebar-accent-foreground: 130 54% 14%;
+    --sidebar-border: 130 20% 93%;
+    --sidebar-ring: 130 54% 14%;
   }
 
   .dark {
-    --background: 0 0% 10%;
+    --background: 130 20% 8%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 12%;
+    --card: 130 20% 10%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 12%;
+    --popover: 130 20% 10%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 150 65% 45%;
+    --primary: 130 45% 35%;
     --primary-foreground: 0 0% 100%;
+    --primary-dark: 130 54% 25%;
 
-    --secondary: 150 30% 20%;
+    --secondary: 130 30% 15%;
     --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 20%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 3 75% 50%;
+    --accent: 130 40% 30%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 45%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 150 65% 45%;
+    --border: 130 20% 18%;
+    --input: 130 20% 18%;
+    --ring: 130 45% 35%;
     
-    --sidebar-background: 0 0% 12%;
+    --sidebar-background: 130 20% 10%;
     --sidebar-foreground: 0 0% 90%;
-    --sidebar-primary: 150 65% 45%;
+    --sidebar-primary: 130 45% 35%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 30% 20%;
+    --sidebar-accent: 130 30% 15%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 150 65% 45%;
+    --sidebar-border: 130 20% 18%;
+    --sidebar-ring: 130 45% 35%;
   }
 }
 
@@ -94,6 +94,45 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-poppins;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-poppins font-semibold;
+  }
+}
+
+@layer components {
+  .hero-title {
+    @apply font-poppins font-bold leading-none text-foreground;
+    font-size: min(14vw, 3.5rem);
+  }
+
+  .hero-subtitle {
+    @apply font-poppins font-semibold uppercase tracking-widest text-muted-foreground;
+  }
+
+  .section-heading {
+    @apply font-poppins font-semibold tracking-wide text-primary;
+  }
+
+  .btn-gradient {
+    @apply bg-gradient-to-r from-primary to-accent text-primary-foreground;
+  }
+
+  .text-serif {
+    @apply font-lora;
+  }
+
+  .text-handwritten {
+    @apply font-handlee;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-2 hover:shadow-elegant;
+  }
+
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-md border border-border/50;
   }
 }
