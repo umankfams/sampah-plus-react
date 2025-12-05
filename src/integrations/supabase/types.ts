@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_phones: {
+        Row: {
+          created_at: string | null
+          id: string
+          phone: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          phone: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          phone?: string
+        }
+        Relationships: []
+      }
       cashout: {
         Row: {
           created_at: string
