@@ -36,6 +36,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 import { useToast } from "@/hooks/use-toast";
 import { Pencil, Trash2, Plus, Search } from "lucide-react";
 import { format } from "date-fns";
@@ -88,6 +97,10 @@ export default function ManajemenTransaksi() {
   const [jenisSampah, setJenisSampah] = useState<JenisSampah[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -159,6 +172,32 @@ export default function ManajemenTransaksi() {
       t.profiles?.no_induk?.includes(search)
     );
   });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredTransaksi.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTransaksi = filteredTransaksi.slice(startIndex, startIndex + itemsPerPage);
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const getPageNumbers = () => {
+    const pages: (number | "ellipsis")[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push("ellipsis");
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+        pages.push(i);
+      }
+      if (currentPage < totalPages - 2) pages.push("ellipsis");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   const handleEdit = (t: Transaksi) => {
     setEditingTransaksi(t);
@@ -347,7 +386,7 @@ export default function ManajemenTransaksi() {
         <CardContent>
           {loading ? (
             <div className="text-center py-8 text-muted-foreground">Memuat data...</div>
-          ) : filteredTransaksi.length === 0 ? (
+          ) : paginatedTransaksi.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               {searchTerm ? "Tidak ada transaksi yang cocok" : "Belum ada transaksi"}
             </div>
@@ -365,7 +404,7 @@ export default function ManajemenTransaksi() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTransaksi.map((t) => (
+                  {paginatedTransaksi.map((t) => (
                     <TableRow key={t.id}>
                       <TableCell>
                         {format(new Date(t.tanggal_transaksi), "dd/MM/yyyy")}
@@ -409,6 +448,48 @@ export default function ManajemenTransaksi() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
+              <p className="text-sm text-muted-foreground">
+                Menampilkan {startIndex + 1}-{Math.min(startIndex + itemsPerPage, filteredTransaksi.length)} dari {filteredTransaksi.length} transaksi
+              </p>
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  {getPageNumbers().map((page, idx) =>
+                    page === "ellipsis" ? (
+                      <PaginationItem key={`ellipsis-${idx}`}>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    ) : (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          onClick={() => setCurrentPage(page)}
+                          isActive={currentPage === page}
+                          className="cursor-pointer"
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    )
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
             </div>
           )}
         </CardContent>
