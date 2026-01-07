@@ -10,13 +10,13 @@ import Index from "./pages/Index";
 import Nasabah from "./pages/Nasabah";
 import JenisSampah from "./pages/JenisSampah";
 import Transaksi from "./pages/Transaksi";
+import ManajemenTransaksi from "./pages/ManajemenTransaksi";
 import Cashout from "./pages/Cashout";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profil.tsx";
 import HistoryTransaction from "./pages/HistoryTransaksi.tsx";
 import CashoutApproval from "./pages/CashoutApproval";
 import LaporanTransaksi from "./pages/LaporanTransaksi";
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -32,6 +32,7 @@ const App = () => (
           <Route path="/nasabah" element={<Layout><Nasabah /></Layout>} />
           <Route path="/jenis-sampah" element={<Layout><JenisSampah /></Layout>} />
           <Route path="/transaksi" element={<Layout><Transaksi /></Layout>} />
+          <Route path="/manajemen-transaksi" element={<Layout><ManajemenTransaksi /></Layout>} />
           <Route path="/cashout" element={<Layout><Cashout /></Layout>} />
           <Route path="/cashout-approval" element={<Layout><CashoutApproval /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
