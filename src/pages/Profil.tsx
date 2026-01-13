@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Key } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,8 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { CreditCard, Edit, User } from "lucide-react";
-// dialog & table components already imported above
+import { CreditCard, Edit } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -47,6 +46,13 @@ export default function Profil() {
   const [detailItems, setDetailItems] = useState<Array<{ jenis_sampah_id: string; jumlah_kg: number; harga_per_kg: number; subtotal: number; nama_sampah?: string }>>([]);
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedTransaksiId, setSelectedTransaksiId] = useState<string | null>(null);
+
+  // Change password state
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const loadProfiles = useCallback(async () => {
     setLoading(true);
@@ -214,6 +220,41 @@ export default function Profil() {
     }
   };
 
+  // Change password handler
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast({ title: "Error", description: "Password baru dan konfirmasi tidak sama", variant: "destructive" });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({ title: "Error", description: "Password baru minimal 6 karakter", variant: "destructive" });
+      return;
+    }
+
+    setPasswordLoading(true);
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      toast({ title: "Berhasil", description: "Password berhasil diubah" });
+      setPasswordDialogOpen(false);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      toast({ title: "Error", description: message, variant: "destructive" });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
   // fetch transactions when selected profile changes
   useEffect(() => {
     void loadTransactions(selected?.id || null);
@@ -240,8 +281,11 @@ export default function Profil() {
                 <p className="text-sm text-muted-foreground">{selected ? selected.no_induk : "Pilih profil untuk melihat detail"}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" onClick={handleOpenEdit} disabled={!selected}>
+                <Button variant="ghost" onClick={handleOpenEdit} disabled={!selected} title="Ubah Nama">
                   <Edit className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" onClick={() => setPasswordDialogOpen(true)} title="Ubah Password">
+                  <Key className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -289,6 +333,54 @@ export default function Profil() {
                   <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => setEditOpen(false)}>Batal</Button>
                     <Button type="submit">Simpan</Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+
+            {/* Change Password Dialog */}
+            <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Ubah Password</DialogTitle>
+                  <DialogDescription>Masukkan password baru untuk akun Anda</DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="new_password">Password Baru</Label>
+                    <Input
+                      id="new_password"
+                      type="password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Minimal 6 karakter"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirm_password">Konfirmasi Password</Label>
+                    <Input
+                      id="confirm_password"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Ulangi password baru"
+                      required
+                      minLength={6}
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button type="button" variant="outline" onClick={() => {
+                      setPasswordDialogOpen(false);
+                      setNewPassword("");
+                      setConfirmPassword("");
+                    }}>
+                      Batal
+                    </Button>
+                    <Button type="submit" disabled={passwordLoading}>
+                      {passwordLoading ? "Menyimpan..." : "Simpan"}
+                    </Button>
                   </div>
                 </form>
               </DialogContent>
