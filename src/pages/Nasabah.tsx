@@ -27,6 +27,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash, Search, ArrowUpDown } from "lucide-react";
 
@@ -54,6 +63,8 @@ export default function Nasabah() {
     nama: "",
     status: "Aktif" as "Aktif" | "Non-aktif",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadProfiles();
@@ -184,7 +195,10 @@ export default function Nasabah() {
           <Input
             placeholder="Cari nama, no induk, atau no HP..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
             className="pl-10"
           />
         </div>
@@ -264,7 +278,9 @@ export default function Nasabah() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredAndSortedProfiles.map((profile) => (
+              filteredAndSortedProfiles
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((profile) => (
                 <TableRow key={profile.id}>
                   <TableCell>{profile.no_induk}</TableCell>
                   <TableCell>{profile.nama}</TableCell>
@@ -299,6 +315,52 @@ export default function Nasabah() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {filteredAndSortedProfiles.length > itemsPerPage && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            {(() => {
+              const totalPages = Math.ceil(filteredAndSortedProfiles.length / itemsPerPage);
+              const pages = [];
+              for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                  pages.push(
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(i)}
+                        isActive={currentPage === i}
+                        className="cursor-pointer"
+                      >
+                        {i}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                  pages.push(
+                    <PaginationItem key={i}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+              }
+              return pages;
+            })()}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => setCurrentPage((p) => Math.min(Math.ceil(filteredAndSortedProfiles.length / itemsPerPage), p + 1))}
+                className={currentPage === Math.ceil(filteredAndSortedProfiles.length / itemsPerPage) ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
