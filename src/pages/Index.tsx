@@ -311,7 +311,7 @@ const Index = () => {
           <div className="pt-8 border-t border-primary-foreground/20 text-center text-primary-foreground/60">
             <p className="flex items-center justify-center gap-2">
               <Recycle className="w-4 h-4" />
-              © 2024 e-Bank Sampah Jakarta. Semua hak dilindungi.
+              © 2026 SiBasTara. Semua hak dilindungi.
             </p>
           </div>
         </div>
