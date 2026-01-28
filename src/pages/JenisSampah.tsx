@@ -4,6 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Table,
   TableBody,
   TableCell,
@@ -47,6 +56,8 @@ export default function JenisSampah() {
     harga_per_kg: "",
     satuan: "KG" as "KG" | "Liter" | "Ml" | "Pcs",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     loadJenisSampah();
@@ -234,7 +245,9 @@ export default function JenisSampah() {
                 <TableCell colSpan={4} className="text-center">Belum ada data</TableCell>
               </TableRow>
             ) : (
-              jenisSampah.map((item) => (
+              jenisSampah
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((item) => (
                 <TableRow key={item.id}>
                   <TableCell>{item.nama}</TableCell>
                   <TableCell>{item.satuan}</TableCell>
@@ -261,6 +274,52 @@ export default function JenisSampah() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {jenisSampah.length > itemsPerPage && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            {(() => {
+              const totalPages = Math.ceil(jenisSampah.length / itemsPerPage);
+              const pages = [];
+              for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                  pages.push(
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(i)}
+                        isActive={currentPage === i}
+                        className="cursor-pointer"
+                      >
+                        {i}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                  pages.push(
+                    <PaginationItem key={i}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+              }
+              return pages;
+            })()}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => setCurrentPage((p) => Math.min(Math.ceil(jenisSampah.length / itemsPerPage), p + 1))}
+                className={currentPage === Math.ceil(jenisSampah.length / itemsPerPage) ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }
