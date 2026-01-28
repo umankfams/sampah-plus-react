@@ -11,6 +11,15 @@ import { Calendar as CalendarIcon, FileDown } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface Transaksi {
   id: string;
@@ -38,6 +47,8 @@ export default function LaporanTransaksi() {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const loadProfiles = useCallback(async () => {
     try {
@@ -99,7 +110,13 @@ export default function LaporanTransaksi() {
     setSelectedDate(undefined);
     setSelectedMonth(null);
     setSelectedYear(null);
+    setCurrentPage(1);
   }
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedProfile, selectedDate, selectedMonth, selectedYear]);
 
   const handleExportToExcel = () => {
     if (items.length === 0) {
@@ -222,7 +239,9 @@ export default function LaporanTransaksi() {
                 <TableCell colSpan={3} className="text-center">Tidak ada transaksi</TableCell>
               </TableRow>
             ) : (
-              items.map((t) => (
+              items
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .map((t) => (
                 <TableRow key={t.id}>
                   <TableCell>{new Date(t.tanggal_transaksi).toLocaleDateString("id-ID")}</TableCell>
                   <TableCell>{t.profiles.nama}</TableCell>
@@ -233,6 +252,52 @@ export default function LaporanTransaksi() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {items.length > itemsPerPage && (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+            {(() => {
+              const totalPages = Math.ceil(items.length / itemsPerPage);
+              const pages = [];
+              for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                  pages.push(
+                    <PaginationItem key={i}>
+                      <PaginationLink
+                        onClick={() => setCurrentPage(i)}
+                        isActive={currentPage === i}
+                        className="cursor-pointer"
+                      >
+                        {i}
+                      </PaginationLink>
+                    </PaginationItem>
+                  );
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                  pages.push(
+                    <PaginationItem key={i}>
+                      <PaginationEllipsis />
+                    </PaginationItem>
+                  );
+                }
+              }
+              return pages;
+            })()}
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => setCurrentPage((p) => Math.min(Math.ceil(items.length / itemsPerPage), p + 1))}
+                className={currentPage === Math.ceil(items.length / itemsPerPage) ? "pointer-events-none opacity-50" : "cursor-pointer"}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
     </div>
   );
 }
